@@ -1,12 +1,14 @@
+import { Link } from "react-router-dom";
+
 export default function Header() {
   return (
     <header>
       <nav>
-        <a className="logo">
+        <Link to='/' className="logo">
           Rankify<span>Games</span>
-        </a>
+        </Link>
         <ul className="menu">
-          <li><a>Колекції</a></li>
+          <li><Link to="/collections">Колекції</Link></li>
           <li><a>Ігри</a></li>
           <li><a>Профіль</a></li>
         </ul>

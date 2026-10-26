@@ -1,12 +1,17 @@
+import { Route, Routes } from "react-router-dom";
 import Header from "./components/Header.jsx";
 import Hero from "./components/Hero.jsx";
+import Collections from "./pages/Collections.jsx";
 
 export default function App() {
   return (
     <>
       <Header />
       <main>
-        <Hero />
+        <Routes>
+          <Route path="/" element={<Hero />} />
+          <Route path="/collections" element={<Collections />} />
+        </Routes>
       </main>
     </>
   );

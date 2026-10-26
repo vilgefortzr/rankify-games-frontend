@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import { fetchJson } from "./api.js";
+import { fetchJson } from "../api.js";
+import { formatGenre } from "../utils.js";
 
 const TOP_GAMES = 3;
-
-export const formatGenre = (genre) =>
-  genre.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 function GameRow({ item, rank, maxVotes }) {
   const { game, votes_count } = item;

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { formatGenre } from "./HeroCard";
+import CollectionCard from "./CollectionCard.jsx";
 
 const messages = {
   loading: "Пошук...",
@@ -23,17 +23,9 @@ export default function SearchResults({ status, results }) {
       {message ? (
         <p className="card-state">{message}</p>
       ) : (
-        <ul className="results-list">
+        <ul className="collection-grid">
           {results.map((collection) => (
-            <li className="result-card" key={collection.id}>
-              <div className="result-head">
-                <h3>{collection.title}</h3>
-                <span className="genre-tag">{formatGenre(collection.genre)}</span>
-              </div>
-              <p className="result-meta">
-                {collection.games_count} ігор · {collection.total_votes} голосів
-              </p>
-            </li>
+            <CollectionCard key={collection.id} collection={collection} />
           ))}
         </ul>
       )}

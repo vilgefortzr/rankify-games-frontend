@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { fetchJson } from "./api.js";
+import { fetchJson } from "../api.js";
 import HeroCard from "./HeroCard.jsx";
 import SearchResults from "./SearchResults.jsx";
 
