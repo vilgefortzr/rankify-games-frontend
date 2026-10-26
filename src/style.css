@@ -245,6 +245,49 @@ nav {
     color: var(--bg-text);
 }
 
+
+/* search results */
+
+.results {
+    padding: 0 var(--page-padding) 80px;
+}
+
+.results-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.result-card {
+    padding: 20px;
+    background: var(--card);
+    border: 1px solid var(--frame);
+    border-radius: 20px;
+}
+
+.result-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.result-head h3 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+.result-meta {
+    margin: 0;
+    color: var(--bg-text);
+}
+
+
 /* responsive */
 
 @media (max-width: 900px) {
