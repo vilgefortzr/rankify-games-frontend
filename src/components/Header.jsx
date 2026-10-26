@@ -5,7 +5,7 @@ export default function Header() {
         <a className="logo">
           Rankify<span>Games</span>
         </a>
-        <ul>
+        <ul className="menu">
           <li><a>Колекції</a></li>
           <li><a>Ігри</a></li>
           <li><a>Профіль</a></li>

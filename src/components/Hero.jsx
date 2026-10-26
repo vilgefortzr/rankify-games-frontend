@@ -14,15 +14,14 @@ export default function Hero() {
       <div className="hero-text">
         <p className="eyebrow">Рейтинги ігор від спільноти</p>
         <h1>Яка гра в серії найкраща?</h1>
-        <p>
+        <p className="lead">
           Створюйте колекції ігор, додавайте їх зі Steam і голосуйте.
           <br />
           Один голос у кожній колекції, а лідера визначає спільнота.
         </p>
-        <form onSubmit={handleSubmit}>
+        <form className="search" onSubmit={handleSubmit}>
           <input
             type="search"
-            name="q"
             placeholder="Знайти колекцію, наприклад Witcher"
             aria-label="Пошук колекції"
             value={query}

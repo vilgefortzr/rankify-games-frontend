@@ -1,41 +1,74 @@
 import { useEffect, useState } from "react";
 
-const API = "http://127.0.0.1:8000/api/v1";
+const API_URL = "http://127.0.0.1:8000/api/v1";
+const TOP_GAMES = 3;
 
 const formatGenre = (genre) =>
   genre.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
+const fetchJson = async (path) => {
+  const response = await fetch(`${API_URL}${path}`);
+  if (!response.ok) throw new Error(response.status);
+  return response.json();
+};
+
+function GameRow({ item, rank, maxVotes }) {
+  const { game, votes_count } = item;
+
+  return (
+    <li className="rank-item">
+      <span className="rank-pos">{rank}</span>
+      {game.img_url ? (
+        <img className="rank-img" src={game.img_url} alt="" />
+      ) : (
+        <div className="rank-img" />
+      )}
+      <div className="rank-info">
+        <div className="rank-row">
+          <span className="rank-title">{game.title}</span>
+          <span>{votes_count.toLocaleString("uk-UA")}</span>
+        </div>
+        <div className="bar">
+          <div className="bar-fill" style={{ width: `${(votes_count / maxVotes) * 100}%` }} />
+        </div>
+      </div>
+    </li>
+  );
+}
+
 export default function HeroCard() {
   const [collection, setCollection] = useState(null);
-  const [error, setError] = useState(false);
+  const [status, setStatus] = useState("loading");
 
   useEffect(() => {
-    async function load() {
+    const load = async () => {
       try {
-        const listRes = await fetch(`${API}/collections/`);
-        if (!listRes.ok) throw new Error();
-        const list = await listRes.json();
-        if (list.length === 0) return;
-
-        const detailRes = await fetch(`${API}/collections/${list[0].id}/`);
-        if (!detailRes.ok) throw new Error();
-        setCollection(await detailRes.json());
+        const [top] = await fetchJson("/collections/");
+        if (!top) return setStatus("empty");
+        setCollection(await fetchJson(`/collections/${top.id}/`));
+        setStatus("ready");
       } catch {
-        setError(true);
+        setStatus("error");
       }
-    }
+    };
     load();
   }, []);
 
-  if (error) {
-    return <div className="hero-card"><p className="card-state">Не вдалося завантажити дані</p></div>;
-  }
-  if (!collection) {
-    return <div className="hero-card"><p className="card-state">Завантаження...</p></div>;
+  if (status !== "ready") {
+    const messages = {
+      loading: "Завантаження...",
+      empty: "Колекцій поки немає",
+      error: "Не вдалося завантажити дані",
+    };
+    return (
+      <div className="hero-card">
+        <p className="card-state">{messages[status]}</p>
+      </div>
+    );
   }
 
-  const games = collection.games.slice(0, 3);
-  const maxVotes = Math.max(...games.map((g) => g.votes_count), 1);
+  const games = collection.games.slice(0, TOP_GAMES);
+  const maxVotes = Math.max(...games.map((item) => item.votes_count), 1);
 
   return (
     <div className="hero-card">
@@ -43,32 +76,11 @@ export default function HeroCard() {
         <h2>{collection.title}</h2>
         <span className="genre-tag">{formatGenre(collection.genre)}</span>
       </div>
-
       <ul className="rank-list">
         {games.map((item, index) => (
-          <li className="rank-item" key={item.game.id}>
-            <span className={index === 0 ? "rank-pos first" : "rank-pos"}>{index + 1}</span>
-            {item.game.img_url ? (
-              <img className="rank-img" src={item.game.img_url} alt="" />
-            ) : (
-              <div className="rank-img" />
-            )}
-            <div className="rank-info">
-              <div className="rank-row">
-                <span className="rank-title">{item.game.title}</span>
-                <span className="rank-votes">{item.votes_count.toLocaleString("uk-UA")}</span>
-              </div>
-              <div className="bar">
-                <div
-                  className={index === 0 ? "bar-fill first" : "bar-fill"}
-                  style={{ width: `${(item.votes_count / maxVotes) * 100}%` }}
-                />
-              </div>
-            </div>
-          </li>
+          <GameRow key={item.game.id} item={item} rank={index + 1} maxVotes={maxVotes} />
         ))}
       </ul>
-
       <button className="btn vote-btn" type="button">Проголосувати</button>
     </div>
   );
