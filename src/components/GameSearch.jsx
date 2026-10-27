@@ -45,7 +45,7 @@ export default function GameSearch({ collectionId, addedIds, onAdded }) {
       await onAdded();
       setQuery("");
     } catch (e) {
-      setError(e.error ?? "Не вдалося додати гру");
+      setError(e.message);
     }
     setAddingId(null);
   };

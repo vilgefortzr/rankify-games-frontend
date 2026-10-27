@@ -26,7 +26,7 @@ export default function GameDetail() {
         setGame(await fetchJson(`/games/${steamId}/`));
         setStatus("ready");
       } catch (error) {
-        setStatus(error.message === "404" ? "notFound" : "error");
+        setStatus(error.status === 404 ? "notFound" : "error");
       }
     };
     load();
@@ -70,7 +70,7 @@ export default function GameDetail() {
 
         <h2 className="section-title">Колекції з цією грою</h2>
         <ul className="game-collections">
-          {game_collections.map(({ id, title, genre, votes_count }) => (
+          {game_collections.map(({ id, title, genre }) => (
             <li key={id}>
               <Link className="game-collection-link" to={`/collections/${id}`}>
                 <span className="game-collection-title">{title}</span>

@@ -1,34 +1,28 @@
 const API_URL = "http://127.0.0.1:8000/api/v1";
 
-export const fetchJson = async (path) => {
-  const response = await fetch(`${API_URL}${path}`);
-  if (!response.ok) throw new Error(response.status);
-  return response.json();
-};
+const request = async (path, options) => {
+  let response;
+  try {
+    response = await fetch(`${API_URL}${path}`, options);
+  } catch {
+    throw { status: 0, message: "Сервер недоступний" };
+  }
+  if (response.status === 204) return null;
 
-export const postJson = async (path, body) => {
-  const response = await fetch(`${API_URL}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await response.json();
-  if (!response.ok) throw data;
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw data?.error ?? { status: response.status, message: "Невідома помилка" };
+  }
   return data;
 };
 
-export const deleteRequest = async (path) => {
-  const response = await fetch(`${API_URL}${path}`, { method: "DELETE" });
-  if (!response.ok) throw await response.json();
-};
+const jsonOptions = (method, body) => ({
+  method,
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(body),
+});
 
-export const patchJson = async (path, body) => {
-  const response = await fetch(`${API_URL}${path}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await response.json();
-  if (!response.ok) throw data;
-  return data;
-};
+export const fetchJson = (path) => request(path);
+export const postJson = (path, body) => request(path, jsonOptions("POST", body));
+export const patchJson = (path, body) => request(path, jsonOptions("PATCH", body));
+export const deleteRequest = (path) => request(path, { method: "DELETE" });

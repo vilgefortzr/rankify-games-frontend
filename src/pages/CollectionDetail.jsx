@@ -22,7 +22,7 @@ export default function CollectionDetail() {
         setCollection(await fetchJson(`/collections/${id}/`));
         setStatus("ready");
       } catch (error) {
-        setStatus(error.message === "404" ? "notFound" : "error");
+        setStatus(error.status === 404 ? "notFound" : "error");
       }
     };
     load();
@@ -40,7 +40,7 @@ export default function CollectionDetail() {
       await deleteRequest(`/collections/${id}/`);
       navigate("/collections");
     } catch (error) {
-      setDeleteError(error.error ?? "Не вдалося видалити колекцію");
+      setDeleteError(error.message);
       setDeleting(false);
     }
   };
@@ -63,30 +63,45 @@ export default function CollectionDetail() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async (e) => {
-  e.preventDefault();
-  setSaving(true);
-  setErrors({});
-  try {
-    const updated = await patchJson(`/collections/${id}/`, form);
-    setCollection(await fetchJson(`/collections/${id}/`));
-    setEditing(false);
-  } catch (error) {
-    setErrors(error.details ?? { form: [error.error ?? "Не вдалося зберегти зміни"] });
-  }
-  setSaving(false);
-};
+    e.preventDefault();
+    setSaving(true);
+    setErrors({});
+    try {
+      await patchJson(`/collections/${id}/`, form);
+      setCollection(await fetchJson(`/collections/${id}/`));
+      setEditing(false);
+    } catch (error) {
+      setErrors(error.details ?? { form: [error.message] });
+    }
+    setSaving(false);
+  };
 
   const handleVote = async (collection_game_id) => {
-  setGameError("");
-  try {
-    await postJson(`/collections/${id}/votes/${collection_game_id}`, { collection_game: collection_game_id });
-    await reload();
-  } catch (error) {
-    setGameError(error.error ?? "Не вдалося проголосувати");
-  }
-};
+    setGameError("");
+    try {
+      await postJson(`/collections/${id}/votes/${collection_game_id}`, { collection_game: collection_game_id });
+      await reload();
+    } catch (error) {
+      setGameError(error.message);
+    }
+  };
 
-  const [gameError, setGameError] = useState(""); 
+  const [gameError, setGameError] = useState("");
+
+  const reload = async () => setCollection(await fetchJson(`/collections/${id}/`));
+
+  const [removingSteamId, setRemovingSteamId] = useState(null);
+
+  const handleRemoveGame = async (steamId) => {
+    setGameError("");
+    try {
+      await deleteRequest(`/collections/${id}/games/${steamId}/`);
+      setRemovingSteamId(null);
+      await reload();
+    } catch (error) {
+      setGameError(error.message);
+    }
+  };
 
   if (status !== "ready") {
     return (
@@ -95,19 +110,6 @@ export default function CollectionDetail() {
       </section>
     );
   }
-
-  const reload = async () => setCollection(await fetchJson(`/collections/${id}/`));
-
-const handleRemoveGame = async (steamId) => {
-  if (!window.confirm("Видалити гру з колекції разом з її голосами?")) return;
-  setGameError("");
-  try {
-    await deleteRequest(`/collections/${id}/games/${steamId}/`);
-    await reload();
-  } catch (error) {
-    setGameError(error.error ?? "Не вдалося видалити гру");
-  }
-};
 
   const { title, genre, description, created_at, games } = collection;
   const maxVotes = Math.max(...games.map((item) => item.votes_count), 1);
@@ -118,52 +120,53 @@ const handleRemoveGame = async (steamId) => {
       <Link className="back-link" to="/collections">← Усі колекції</Link>
 
       {editing ? (
-  <form className="form detail-form" onSubmit={handleSave}>
-    <label className="field">
-      Назва
-      <input name="title" value={form.title} onChange={handleChange} maxLength={100} required />
-      {errors.title && <span className="field-error">{errors.title[0]}</span>}
-    </label>
-    <label className="field">
-      Жанр
-      <select name="genre" value={form.genre} onChange={handleChange}>
-        {GENRES.map(([value, label]) => (
-          <option key={value} value={value}>{label}</option>
-        ))}
-      </select>
-      {errors.genre && <span className="field-error">{errors.genre[0]}</span>}
-    </label>
-    <label className="field">
-      Опис
-      <textarea name="description" value={form.description} onChange={handleChange} rows={4} />
-    </label>
-    {errors.form && <p className="field-error">{errors.form[0]}</p>}
-    <div className="form-actions">
-      <button className="btn" type="submit" disabled={saving}>
-        {saving ? "Збереження..." : "Зберегти"}
-      </button>
-      <button className="btn btn-ghost" type="button" onClick={() => setEditing(false)} disabled={saving}>
-        Скасувати
-      </button>
-    </div>
-  </form>
-) : (
-  <div className="detail-head">
-    <h1 className="page-title">{title}</h1>
-    <div className="detail-meta">
-      <span className="genre-tag">{formatGenre(genre)}</span>
-      <span className="detail-date">Створено {createdDate}</span>
-    </div>
-    <p className="detail-desc">{description || "Без опису"}</p>
-    <button className="btn btn-ghost" type="button" onClick={startEditing}>Редагувати</button>
-  </div>
-)}
-  <GameSearch
-  collectionId={id}
-  addedIds={games.map(({ game }) => game.steam_id)}
-  onAdded={reload}
-  />
-  {gameError && <p className="field-error">{gameError}</p>}
+        <form className="form detail-form" onSubmit={handleSave}>
+          <label className="field">
+            Назва
+            <input name="title" value={form.title} onChange={handleChange} maxLength={100} required />
+            {errors.title && <span className="field-error">{errors.title[0]}</span>}
+          </label>
+          <label className="field">
+            Жанр
+            <select name="genre" value={form.genre} onChange={handleChange}>
+              {GENRES.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+            {errors.genre && <span className="field-error">{errors.genre[0]}</span>}
+          </label>
+          <label className="field">
+            Опис
+            <textarea name="description" value={form.description} onChange={handleChange} rows={4} />
+          </label>
+          {errors.form && <p className="field-error">{errors.form[0]}</p>}
+          <div className="form-actions">
+            <button className="btn" type="submit" disabled={saving}>
+              {saving ? "Збереження..." : "Зберегти"}
+            </button>
+            <button className="btn btn-ghost" type="button" onClick={() => setEditing(false)} disabled={saving}>
+              Скасувати
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="detail-head">
+          <h1 className="page-title">{title}</h1>
+          <div className="detail-meta">
+            <span className="genre-tag">{formatGenre(genre)}</span>
+            <span className="detail-date">Створено {createdDate}</span>
+          </div>
+          <p className="detail-desc">{description || "Без опису"}</p>
+          <button className="btn btn-ghost" type="button" onClick={startEditing}>Редагувати</button>
+        </div>
+      )}
+
+      <GameSearch
+        collectionId={id}
+        addedIds={games.map(({ game }) => game.steam_id)}
+        onAdded={reload}
+      />
+      {gameError && <p className="field-error">{gameError}</p>}
 
       {games.length === 0 ? (
         <p className="card-state">У цій колекції ще немає ігор</p>
@@ -188,32 +191,56 @@ const handleRemoveGame = async (steamId) => {
                   <div className="bar-fill" style={{ width: `${(votes_count / maxVotes) * 100}%` }} />
                 </div>
                 <button className="btn vote-btn" type="button" onClick={() => handleVote(id)}>Проголосувати</button>
-                <button className="btn btn-ghost remove-btn" type="button" onClick={() => handleRemoveGame(game.steam_id)}>
-                  Видалити з колекції
-                </button>
+                {removingSteamId === game.steam_id ? (
+                  <div className="card-confirm-actions">
+                    <span>Видалити з голосами?</span>
+                    <button
+                      className="btn btn-danger"
+                      type="button"
+                      onClick={() => handleRemoveGame(game.steam_id)}
+                    >
+                      Так
+                    </button>
+                    <button
+                      className="btn btn-ghost"
+                      type="button"
+                      onClick={() => setRemovingSteamId(null)}
+                    >
+                      Ні
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    className="btn btn-ghost remove-btn"
+                    type="button"
+                    onClick={() => setRemovingSteamId(game.steam_id)}
+                  >
+                    Видалити з колекції
+                  </button>
+                )}
               </div>
             </li>
           ))}
         </ol>
       )}
-    <div className="danger-zone">
-    {confirming ? (
-      <>
-        <span>Ви впевнені?</span>
-        <button className="btn btn-danger" type="button" onClick={handleDelete} disabled={deleting}>
-          {deleting ? "Видалення..." : "Так, видалити"}
-        </button>
-        <button className="btn btn-ghost" type="button" onClick={() => setConfirming(false)} disabled={deleting}>
-          Скасувати
-        </button>
-      </>
-      ) : (
-      <button className="btn btn-danger" type="button" onClick={() => setConfirming(true)}>
-        Видалити колекцію
-      </button>
-      )}
-      {deleteError && <p className="field-error">{deleteError}</p>}
-    </div>
+      <div className="danger-zone">
+        {confirming ? (
+          <>
+            <span>Ви впевнені?</span>
+            <button className="btn btn-danger" type="button" onClick={handleDelete} disabled={deleting}>
+              {deleting ? "Видалення..." : "Так, видалити"}
+            </button>
+            <button className="btn btn-ghost" type="button" onClick={() => setConfirming(false)} disabled={deleting}>
+              Скасувати
+            </button>
+          </>
+        ) : (
+          <button className="btn btn-danger" type="button" onClick={() => setConfirming(true)}>
+            Видалити колекцію
+          </button>
+        )}
+        {deleteError && <p className="field-error">{deleteError}</p>}
+      </div>
     </section>
   );
 }

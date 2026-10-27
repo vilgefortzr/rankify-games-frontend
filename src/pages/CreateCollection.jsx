@@ -19,7 +19,7 @@ export default function CreateCollection() {
       const created = await postJson("/collections/", form);
       navigate(`/collections/${created.id}`);
     } catch (error) {
-      setErrors(error.details ?? { form: [error.error ?? "Не вдалося створити колекцію"] });
+      setErrors(error.details ?? { form: [error.message] });
       setSubmitting(false);
     }
   };
