@@ -9,7 +9,7 @@ export default function Header() {
         </Link>
         <ul className="menu">
           <li><Link to="/collections">Колекції</Link></li>
-          <li><a>Ігри</a></li>
+          <li><Link to="/games">Ігри</Link></li>
           {/* <li><a>Профіль</a></li> */}
         </ul>
         <div className="auth">

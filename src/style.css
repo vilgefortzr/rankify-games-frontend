@@ -389,6 +389,17 @@ footer p {
     border-radius: 30px;
 }
 
+.collection-img-wrap {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.game-title {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.3;
+}
 
 /* collection detail */
 
