@@ -14,7 +14,7 @@ export default function Header() {
         </ul>
         <div className="auth">
           <a>Увійти</a>
-          <a className="btn">Створити колекцію</a>
+          <Link className="btn" to="/collections/new">Створити колекцію</Link>
         </div>
       </nav>
     </header>

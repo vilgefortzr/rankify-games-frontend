@@ -496,6 +496,143 @@ footer p {
     background: var(--accent);
 }
 
+/* form */
+
+/* form */
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.form-page .page-title {
+    text-align: center;
+}
+
+.form .btn {
+    align-self: center;
+    height: 50px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.field input,
+.field select,
+.field textarea {
+    padding: 14px 20px;
+    font: inherit;
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--frame);
+    border-radius: 20px;
+}
+
+.field textarea {
+    resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.field-error {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: #ff6b6b;
+}
+
+.form .btn {
+    align-self: flex-start;
+    height: 50px;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.field input,
+.field select,
+.field textarea {
+    padding: 14px 20px;
+    font: inherit;
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--frame);
+    border-radius: 20px;
+}
+
+.field textarea {
+    resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.field-error {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: #ff6b6b;
+}
+
+.form .btn {
+    align-self: flex-start;
+    height: 50px;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* danger zone */
+
+.danger-zone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--frame);
+    color: var(--bg-text);
+}
+
+.btn-danger {
+    color: var(--text);
+    background: #c0392b;
+}
+
+.btn-ghost {
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--frame);
+}
 
 /* responsive */
 

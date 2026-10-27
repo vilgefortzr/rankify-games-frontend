@@ -5,3 +5,19 @@ export const fetchJson = async (path) => {
   if (!response.ok) throw new Error(response.status);
   return response.json();
 };
+
+export const postJson = async (path, body) => {
+  const response = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json();
+  if (!response.ok) throw data;
+  return data;
+};
+
+export const deleteRequest = async (path) => {
+  const response = await fetch(`${API_URL}${path}`, { method: "DELETE" });
+  if (!response.ok) throw await response.json();
+};

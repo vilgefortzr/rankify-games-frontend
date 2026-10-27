@@ -4,6 +4,7 @@ import Hero from "./components/Hero.jsx";
 import Collections from "./pages/Collections.jsx";
 import CollectionDetail from "./pages/CollectionDetail.jsx";
 import Footer from "./components/Footer.jsx";
+import CreateCollection from "./pages/CreateCollection.jsx";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/" element={<Hero />} />
           <Route path="/collections" element={<Collections />} />
           <Route path="/collections/:id" element={<CollectionDetail />} />
+          <Route path="/collections/new" element={<CreateCollection />} />
         </Routes>
       </main>
       <Footer />

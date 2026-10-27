@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { fetchJson } from "../api.js";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { deleteRequest, fetchJson } from "../api.js";
 import { formatGenre } from "../utils.js";
 
 const messages = {
@@ -26,6 +26,23 @@ export default function CollectionDetail() {
     };
     load();
   }, [id]);
+
+  const navigate = useNavigate();
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      await deleteRequest(`/collections/${id}/`);
+      navigate("/collections");
+    } catch (error) {
+      setDeleteError(error.error ?? "Не вдалося видалити колекцію");
+      setDeleting(false);
+    }
+  };
 
   if (status !== "ready") {
     return (
@@ -78,6 +95,24 @@ export default function CollectionDetail() {
           ))}
         </ol>
       )}
+    <div className="danger-zone">
+    {confirming ? (
+      <>
+        <span>Ви впевнені?</span>
+        <button className="btn btn-danger" type="button" onClick={handleDelete} disabled={deleting}>
+          {deleting ? "Видалення..." : "Так, видалити"}
+        </button>
+        <button className="btn btn-ghost" type="button" onClick={() => setConfirming(false)} disabled={deleting}>
+          Скасувати
+        </button>
+      </>
+      ) : (
+      <button className="btn btn-danger" type="button" onClick={() => setConfirming(true)}>
+        Видалити колекцію
+      </button>
+      )}
+      {deleteError && <p className="field-error">{deleteError}</p>}
+    </div>
     </section>
   );
 }
