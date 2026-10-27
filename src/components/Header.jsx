@@ -10,7 +10,7 @@ export default function Header() {
         <ul className="menu">
           <li><Link to="/collections">Колекції</Link></li>
           <li><a>Ігри</a></li>
-          <li><a>Профіль</a></li>
+          {/* <li><a>Профіль</a></li> */}
         </ul>
         <div className="auth">
           <a>Увійти</a>

@@ -1,24 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchJson } from "../api.js";
 import HeroCard from "./HeroCard.jsx";
 import SearchResults from "./SearchResults.jsx";
 
+const SEARCH_DELAY = 400;
+
 export default function Hero() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
-  const [status, setStatus] = useState("idle");
+  const [searchStatus, setSearchStatus] = useState("idle");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus("loading");
-    try {
-      const search = encodeURIComponent(query.trim());
-      setResults(await fetchJson(`/collections/?search=${search}`));
-      setStatus("ready");
-    } catch {
-      setStatus("error");
+  useEffect(() => {
+    const search = query.trim();
+    if (!search) {
+      setSearchStatus("idle");
+      return;
     }
-  };
+
+    setSearchStatus("loading");
+    const timer = setTimeout(async () => {
+      try {
+        setResults(await fetchJson(`/collections/?search=${encodeURIComponent(search)}`));
+        setSearchStatus("ready");
+      } catch {
+        setSearchStatus("error");
+      }
+    }, SEARCH_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [query]);
 
   return (
     <>
@@ -31,7 +41,7 @@ export default function Hero() {
             <br />
             Один голос у кожній колекції, а лідера визначає спільнота.
           </p>
-          <form className="search" onSubmit={handleSubmit}>
+          <form className="search" onSubmit={(e) => e.preventDefault()}>
             <input
               type="search"
               placeholder="Знайти колекцію, наприклад Witcher"
@@ -39,12 +49,11 @@ export default function Hero() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <button className="btn" type="submit">Знайти</button>
           </form>
         </div>
         <HeroCard />
       </section>
-      <SearchResults status={status} results={results} />
+      <SearchResults status={searchStatus} results={results} />
     </>
   );
 }

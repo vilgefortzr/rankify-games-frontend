@@ -14,12 +14,12 @@ export default function CollectionCard({ collection }) {
         <div className="collection-img" />
       )}
       <div className="collection-body">
-        <div className="result-head">
+        <div className="collection-head">
           <h3>{title}</h3>
           <span className="genre-tag">{formatGenre(genre)}</span>
         </div>
         <p className="collection-desc">{description || "Без опису"}</p>
-        <p className="result-meta">
+        <p className="collection-meta">
           {games_count} ігор · {total_votes} голосів
         </p>
       </div>

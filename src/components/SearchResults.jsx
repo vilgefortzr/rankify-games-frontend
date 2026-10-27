@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import CollectionCard from "./CollectionCard.jsx";
 
 const messages = {
@@ -8,18 +7,12 @@ const messages = {
 };
 
 export default function SearchResults({ status, results }) {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (status !== "idle") ref.current?.scrollIntoView({ behavior: "smooth" });
-  }, [status]);
-
   if (status === "idle") return null;
 
   const message = status === "ready" && results.length === 0 ? messages.empty : messages[status];
 
   return (
-    <section className="results" ref={ref}>
+    <section className="results">
       {message ? (
         <p className="card-state">{message}</p>
       ) : (
