@@ -79,7 +79,7 @@ export default function CollectionDetail() {
   const handleVote = async (collection_game_id) => {
   setGameError("");
   try {
-    await postJson(`/collections/${id}/votes/`, { collection_game: collection_game_id });
+    await postJson(`/collections/${id}/votes/${collection_game_id}`, { collection_game: collection_game_id });
     await reload();
   } catch (error) {
     setGameError(error.error ?? "Не вдалося проголосувати");
