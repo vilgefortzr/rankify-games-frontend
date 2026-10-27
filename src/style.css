@@ -678,6 +678,97 @@ footer p {
     }
 }
 
+/* game detail */
+
+.game-hero {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--frame);
+}
+
+.game-hero-bg {
+    position: absolute;
+    inset: -40px;
+    background-size: cover;
+    background-position: center;
+    filter: blur(30px) brightness(0.5);
+}
+
+.game-hero-img {
+    position: relative;
+    display: block;
+    width: min(500px, 100%);    
+    border-radius: 0 0 20px 20px;
+}
+
+.game-info {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-bottom: 56px;
+}
+
+.game-desc {
+    flex: 1;
+    min-width: 280px;
+    margin: 0;
+}
+
+.game-buy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    margin-right: vw;
+}
+
+.game-price {
+    font-family: var(--headers-font);
+    font-size: 24px;
+}
+
+.section-title {
+    margin: 0 0 24px;
+    font-size: 24px;
+}
+
+.game-collections {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 720px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.game-collection-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--frame);
+    border-radius: 20px;
+}
+
+.game-collection-link:hover {
+    border-color: var(--accent);
+}
+
+.game-collection-title {
+    flex: 1;
+    font-weight: 500;
+}
+
+.game-collection-link .result-meta {
+    margin: 0;
+}
+
 /* test block */
 
 /*

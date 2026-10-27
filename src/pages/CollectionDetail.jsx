@@ -139,6 +139,7 @@ export default function CollectionDetail() {
         <ol className="game-grid">
           {games.map(({ game, votes_count }, index) => (
             <li className="game-card" key={game.id}>
+              <Link to={`/games/${game.steam_id}`}>
               {game.img_url ? (
                 <img className="game-card-img" src={game.img_url} alt={game.title} />
               ) : (
@@ -155,6 +156,7 @@ export default function CollectionDetail() {
                 </div>
                 <button className="btn vote-btn" type="button">Проголосувати</button>
               </div>
+              </Link>
             </li>
           ))}
         </ol>

@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { fetchJson } from "../api.js";
 import { formatGenre } from "../utils.js";
+import { Link } from "react-router-dom";
 
 const TOP_GAMES = 3;
 
 function GameRow({ item, rank, maxVotes }) {
   const { game, votes_count } = item;
 
-  return (
-    <li className="rank-item">
+return (
+  <li>
+    <Link className="rank-item" to={`/games/${game.steam_id}`}>
       <span className="rank-pos">{rank}</span>
       {game.img_url ? (
         <img className="rank-img" src={game.img_url} alt="" />
@@ -24,8 +26,9 @@ function GameRow({ item, rank, maxVotes }) {
           <div className="bar-fill" style={{ width: `${(votes_count / maxVotes) * 100}%` }} />
         </div>
       </div>
-    </li>
-  );
+    </Link>
+  </li>
+);
 }
 
 export default function HeroCard() {
