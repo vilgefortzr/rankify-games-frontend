@@ -21,3 +21,14 @@ export const deleteRequest = async (path) => {
   const response = await fetch(`${API_URL}${path}`, { method: "DELETE" });
   if (!response.ok) throw await response.json();
 };
+
+export const patchJson = async (path, body) => {
+  const response = await fetch(`${API_URL}${path}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json();
+  if (!response.ok) throw data;
+  return data;
+};

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { deleteRequest, fetchJson } from "../api.js";
-import { formatGenre } from "../utils.js";
+import { deleteRequest, fetchJson, patchJson } from "../api.js";
+import { formatGenre, GENRES } from "../utils.js";
 
 const messages = {
   loading: "Завантаження...",
@@ -44,6 +44,37 @@ export default function CollectionDetail() {
     }
   };
 
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ title: "", genre: "other", description: "" });
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+
+  const startEditing = () => {
+    setForm({
+      title: collection.title,
+      genre: collection.genre,
+      description: collection.description,
+    });
+    setErrors({});
+    setEditing(true);
+  };
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSave = async (e) => {
+  e.preventDefault();
+  setSaving(true);
+  setErrors({});
+  try {
+    const updated = await patchJson(`/collections/${id}/`, form);
+    setCollection(await fetchJson(`/collections/${id}/`));
+    setEditing(false);
+  } catch (error) {
+    setErrors(error.details ?? { form: [error.error ?? "Не вдалося зберегти зміни"] });
+  }
+  setSaving(false);
+};
+
   if (status !== "ready") {
     return (
       <section className="page">
@@ -60,14 +91,47 @@ export default function CollectionDetail() {
     <section className="page">
       <Link className="back-link" to="/collections">← Усі колекції</Link>
 
-      <div className="detail-head">
-        <h1 className="page-title">{title}</h1>
-        <div className="detail-meta">
-          <span className="genre-tag">{formatGenre(genre)}</span>
-          <span className="detail-date">{createdDate}</span>
-        </div>
-        <p className="detail-desc">{description || "Без опису"}</p>
-      </div>
+      {editing ? (
+  <form className="form detail-form" onSubmit={handleSave}>
+    <label className="field">
+      Назва
+      <input name="title" value={form.title} onChange={handleChange} maxLength={100} required />
+      {errors.title && <span className="field-error">{errors.title[0]}</span>}
+    </label>
+    <label className="field">
+      Жанр
+      <select name="genre" value={form.genre} onChange={handleChange}>
+        {GENRES.map(([value, label]) => (
+          <option key={value} value={value}>{label}</option>
+        ))}
+      </select>
+      {errors.genre && <span className="field-error">{errors.genre[0]}</span>}
+    </label>
+    <label className="field">
+      Опис
+      <textarea name="description" value={form.description} onChange={handleChange} rows={4} />
+    </label>
+    {errors.form && <p className="field-error">{errors.form[0]}</p>}
+    <div className="form-actions">
+      <button className="btn" type="submit" disabled={saving}>
+        {saving ? "Збереження..." : "Зберегти"}
+      </button>
+      <button className="btn btn-ghost" type="button" onClick={() => setEditing(false)} disabled={saving}>
+        Скасувати
+      </button>
+    </div>
+  </form>
+) : (
+  <div className="detail-head">
+    <h1 className="page-title">{title}</h1>
+    <div className="detail-meta">
+      <span className="genre-tag">{formatGenre(genre)}</span>
+      <span className="detail-date">Створено {createdDate}</span>
+    </div>
+    <p className="detail-desc">{description || "Без опису"}</p>
+    <button className="btn btn-ghost" type="button" onClick={startEditing}>Редагувати</button>
+  </div>
+)}
 
       {games.length === 0 ? (
         <p className="card-state">У цій колекції ще немає ігор</p>

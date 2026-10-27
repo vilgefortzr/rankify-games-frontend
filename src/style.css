@@ -434,6 +434,20 @@ footer p {
     color: var(--bg-text);
 }
 
+.detail-head .btn-ghost {
+    margin-top: 24px;
+}
+
+.detail-form {
+    margin-bottom: 100px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
 .game-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -498,14 +512,12 @@ footer p {
 
 /* form */
 
-/* form */
-
 .form {
     display: flex;
     flex-direction: column;
     gap: 20px;
     max-width: 560px;
-    margin: 0 auto;
+    margin-inline: auto;
 }
 
 .form-page .page-title {
