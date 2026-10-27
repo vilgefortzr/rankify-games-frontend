@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { deleteRequest, fetchJson, patchJson } from "../api.js";
+import { deleteRequest, fetchJson, patchJson, postJson } from "../api.js";
 import { formatGenre, GENRES } from "../utils.js";
 import GameSearch from "../components/GameSearch.jsx";
 
@@ -74,6 +74,16 @@ export default function CollectionDetail() {
     setErrors(error.details ?? { form: [error.error ?? "Не вдалося зберегти зміни"] });
   }
   setSaving(false);
+};
+
+  const handleVote = async (collection_game_id) => {
+  setGameError("");
+  try {
+    await postJson(`/collections/${id}/votes/`, { collection_game: collection_game_id });
+    await reload();
+  } catch (error) {
+    setGameError(error.error ?? "Не вдалося проголосувати");
+  }
 };
 
   const [gameError, setGameError] = useState(""); 
@@ -159,7 +169,7 @@ const handleRemoveGame = async (steamId) => {
         <p className="card-state">У цій колекції ще немає ігор</p>
       ) : (
         <ol className="game-grid">
-          {games.map(({ game, votes_count }, index) => (
+          {games.map(({ id, game, votes_count }, index) => (
             <li className="game-card" key={game.id}>
               {game.img_url ? (
                 <img className="game-card-img" src={game.img_url} alt={game.title} />
@@ -177,7 +187,7 @@ const handleRemoveGame = async (steamId) => {
                 <div className="bar">
                   <div className="bar-fill" style={{ width: `${(votes_count / maxVotes) * 100}%` }} />
                 </div>
-                <button className="btn vote-btn" type="button">Проголосувати</button>
+                <button className="btn vote-btn" type="button" onClick={() => handleVote(id)}>Проголосувати</button>
                 <button className="btn btn-ghost remove-btn" type="button" onClick={() => handleRemoveGame(game.steam_id)}>
                   Видалити з колекції
                 </button>
