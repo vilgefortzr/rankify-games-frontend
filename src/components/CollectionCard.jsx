@@ -1,10 +1,13 @@
+import { Link } from "react-router-dom";
 import { formatGenre } from "../utils.js";
 
+
 export default function CollectionCard({ collection }) {
-  const { title, genre, description, games_count, total_votes, top_game } = collection;
+  const { id, title, genre, description, games_count, total_votes, top_game } = collection;
 
   return (
     <li className="collection-card">
+      <Link to={`/collections/${id}`}>
       {top_game?.img_url ? (
         <img className="collection-img" src={top_game.img_url} alt={top_game.title} />
       ) : (
@@ -20,6 +23,7 @@ export default function CollectionCard({ collection }) {
           {games_count} ігор · {total_votes} голосів
         </p>
       </div>
+      </Link>
     </li>
   );
 }
