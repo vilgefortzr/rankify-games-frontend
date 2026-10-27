@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { deleteRequest, fetchJson, patchJson } from "../api.js";
 import { formatGenre, GENRES } from "../utils.js";
+import GameSearch from "../components/GameSearch.jsx";
 
 const messages = {
   loading: "Завантаження...",
@@ -75,6 +76,8 @@ export default function CollectionDetail() {
   setSaving(false);
 };
 
+  const [gameError, setGameError] = useState(""); 
+
   if (status !== "ready") {
     return (
       <section className="page">
@@ -82,6 +85,19 @@ export default function CollectionDetail() {
       </section>
     );
   }
+
+  const reload = async () => setCollection(await fetchJson(`/collections/${id}/`));
+
+const handleRemoveGame = async (steamId) => {
+  if (!window.confirm("Видалити гру з колекції разом з її голосами?")) return;
+  setGameError("");
+  try {
+    await deleteRequest(`/collections/${id}/games/${steamId}/`);
+    await reload();
+  } catch (error) {
+    setGameError(error.error ?? "Не вдалося видалити гру");
+  }
+};
 
   const { title, genre, description, created_at, games } = collection;
   const maxVotes = Math.max(...games.map((item) => item.votes_count), 1);
@@ -132,6 +148,12 @@ export default function CollectionDetail() {
     <button className="btn btn-ghost" type="button" onClick={startEditing}>Редагувати</button>
   </div>
 )}
+  <GameSearch
+  collectionId={id}
+  addedIds={games.map(({ game }) => game.steam_id)}
+  onAdded={reload}
+  />
+  {gameError && <p className="field-error">{gameError}</p>}
 
       {games.length === 0 ? (
         <p className="card-state">У цій колекції ще немає ігор</p>
@@ -139,7 +161,6 @@ export default function CollectionDetail() {
         <ol className="game-grid">
           {games.map(({ game, votes_count }, index) => (
             <li className="game-card" key={game.id}>
-              <Link to={`/games/${game.steam_id}`}>
               {game.img_url ? (
                 <img className="game-card-img" src={game.img_url} alt={game.title} />
               ) : (
@@ -150,13 +171,17 @@ export default function CollectionDetail() {
                   <span className="rank-pos">#{index + 1}</span>
                   <span>{votes_count.toLocaleString("uk-UA")} голосів</span>
                 </div>
-                <h3 className="game-card-title">{game.title}</h3>
+                <Link to={`/games/${game.steam_id}`}>
+                  <h3 className="game-card-title">{game.title}</h3>
+                </Link>
                 <div className="bar">
                   <div className="bar-fill" style={{ width: `${(votes_count / maxVotes) * 100}%` }} />
                 </div>
                 <button className="btn vote-btn" type="button">Проголосувати</button>
+                <button className="btn btn-ghost remove-btn" type="button" onClick={() => handleRemoveGame(game.steam_id)}>
+                  Видалити з колекції
+                </button>
               </div>
-              </Link>
             </li>
           ))}
         </ol>
