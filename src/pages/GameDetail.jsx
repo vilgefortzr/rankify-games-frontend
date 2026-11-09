@@ -1,85 +1,106 @@
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
-import { fetchJson } from "../api.js";
-import { formatGenre } from "../utils.js";
+import { gamesApi } from "../api/endpoints.js";
+import BackLink from "../components/BackLink.jsx";
+import Cover from "../components/Cover.jsx";
+import GenreTag from "../components/GenreTag.jsx";
+import ScreenshotGallery from "../components/ScreenshotGallery.jsx";
+import StateMessage from "../components/StateMessage.jsx";
+import { useAsync } from "../hooks/useAsync.js";
 
-const messages = {
-  loading: "Завантаження...",
-  error: "Не вдалося завантажити гру",
-  notFound: "Гру не знайдено",
-};
+function Facts({ steam }) {
+  const facts = [
+    ["Release date", steam.coming_soon ? `Coming soon · ${steam.release_date ?? ""}` : steam.release_date],
+    ["Developer", steam.developers.join(", ")],
+    ["Publisher", steam.publishers.join(", ")],
+    ["Steam genres", steam.genres.join(", ")],
+    ["Metacritic", steam.metacritic_score],
+  ].filter(([, value]) => value);
 
-const formatPrice = ({ is_free, price }) => {
-  if (is_free) return "Безкоштовно";
-  return price ?? "Ціна недоступна";
-};
+  if (!facts.length) return null;
+  return (
+    <dl className="facts">
+      {facts.map(([label, value]) => (
+        <div className="fact" key={label}>
+          <dt>{label}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
 
 export default function GameDetail() {
   const { steamId } = useParams();
-  const [game, setGame] = useState(null);
-  const [status, setStatus] = useState("loading");
-
-  useEffect(() => {
-    const load = async () => {
-      setStatus("loading");
-      try {
-        setGame(await fetchJson(`/games/${steamId}/`));
-        setStatus("ready");
-      } catch (error) {
-        setStatus(error.status === 404 ? "notFound" : "error");
-      }
-    };
-    load();
-  }, [steamId]);
+  const loader = useCallback((signal) => gamesApi.get(steamId, signal), [steamId]);
+  const { status, data: game, error } = useAsync(loader);
 
   if (status !== "ready") {
     return (
       <section className="page">
-        <p className="card-state">{messages[status]}</p>
+        <title>Game · RankifyGames</title>
+        <BackLink to="/games">All games</BackLink>
+        <StateMessage
+          status={status}
+          error={error}
+          messages={{ notFound: "Game not found", error: "Failed to load game" }}
+        />
       </section>
     );
   }
 
-  const { steam, title, img_url, game_collections } = game;
-  const image = steam?.header_image ?? img_url;
+  const { title, img_url, steam, game_collections } = game;
 
   return (
-    <>
-      <div className="game-hero">
-        <div className="game-hero-bg" style={{ backgroundImage: `url(${image})` }} />
-        <img className="game-hero-img" src={image} alt={title} />
+    <article className="page">
+      <title>{`${title} · RankifyGames`}</title>
+      <BackLink to="/games">All games</BackLink>
+
+      <div className="game-layout">
+        <div className="tcard tcard-feature">
+          <Cover className="tcard-art" src={img_url} alt={title} />
+          <h1 className="tcard-name">{title}</h1>
+          {steam ? <Facts steam={steam} /> : <p className="state-text">Steam data is currently unavailable.</p>}
+        </div>
+
+        <div className="game-side">
+          {steam?.short_description && <p className="lead">{steam.short_description}</p>}
+          {steam && (
+            <a className="btn btn-gold" href={steam.store_url} target="_blank" rel="noreferrer">
+              Open in Steam
+            </a>
+          )}
+
+          <section>
+            <h2 className="section-title">
+              Collections with this game
+            </h2>
+            {game_collections.length ? (
+              <ul className="link-list">
+                {game_collections.map(({ id, title: collectionTitle, genre }) => (
+                  <li key={id}>
+                    <Link className={`link-list-item g-${genre}`} to={`/collections/${id}`}>
+                      <span>{collectionTitle}</span>
+                      <GenreTag genre={genre} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="state-text">This game is not in any collection yet.</p>
+            )}
+          </section>
+        </div>
       </div>
-      <section className="page">
-        <Link className="back-link" to="/games">← Усі ігри</Link>
 
-        <h1 className="page-title">{steam?.name ?? title}</h1>
-        {steam && (
-          <div className="game-info">
-            <p className="detail-desc game-desc">{steam.short_description}</p>
-            <div className="game-buy">
-              <span className="game-price">{formatPrice(steam)}</span>
-              {steam.discount_percent > 0 && (
-                <span className="genre-tag">-{steam.discount_percent}%</span>
-              )}
-              <a className="btn" href={steam.store_url} target="_blank" rel="noreferrer">
-                Відкрити в Steam
-              </a>
-            </div>
-          </div>
-        )}
-
-        <h2 className="section-title">Колекції з цією грою</h2>
-        <ul className="game-collections">
-          {game_collections.map(({ id, title, genre }) => (
-            <li key={id}>
-              <Link className="game-collection-link" to={`/collections/${id}`}>
-                <span className="game-collection-title">{title}</span>
-                <span className="genre-tag">{formatGenre(genre)}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </>
+      {steam?.screenshots?.length > 0 && (
+        <section className="section">
+          <h2 className="section-title">
+            Screenshots
+          </h2>
+          <ScreenshotGallery screenshots={steam.screenshots} title={title} />
+        </section>
+      )}
+    </article>
   );
 }

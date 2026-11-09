@@ -1,20 +1,17 @@
 import { Link } from "react-router-dom";
+import Cover from "./Cover.jsx";
 
 export default function GameCard({ game }) {
   const { steam_id, title, img_url } = game;
 
   return (
-    <li className="collection-card">
-      <Link to={`/games/${steam_id}`}>
-        {img_url ? (
-          <img className="collection-img" src={img_url} alt={title} />
-        ) : (
-          <div className="collection-img" />
-        )}
-        <div className="collection-body">
-          <h3 className="game-title">{title}</h3>
+    <article className="tcard tcard-plain">
+      <Link className="tcard-link" to={`/games/${steam_id}`}>
+        <Cover className="tcard-art" src={img_url} alt={title} />
+        <div className="tcard-plate">
+          <h2 className="tcard-name">{title}</h2>
         </div>
       </Link>
-    </li>
+    </article>
   );
 }

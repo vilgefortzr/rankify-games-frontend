@@ -1,8 +1,3 @@
-export const formatGenre = (genre) => {
-  if (genre === "rpg") return 'RPG';
-  return genre.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
-};
-
 export const GENRES = [
   ["action", "Action"],
   ["adventure", "Adventure"],
@@ -22,3 +17,7 @@ export const GENRES = [
   ["indie", "Indie"],
   ["other", "Other"],
 ];
+
+const LABELS = Object.fromEntries(GENRES);
+
+export const formatGenre = (genre) => LABELS[genre] ?? genre;

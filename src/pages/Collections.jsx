@@ -1,57 +1,49 @@
-import { useEffect, useState } from "react";
-import { fetchJson } from "../api.js";
+import { Link, useSearchParams } from "react-router-dom";
+import { collectionsApi } from "../api/endpoints.js";
+import CardGrid from "../components/CardGrid.jsx";
 import CollectionCard from "../components/CollectionCard.jsx";
-
-const SEARCH_DELAY = 400;
-
-const messages = {
-  loading: "Завантаження...",
-  error: "Не вдалося завантажити колекції",
-  empty: "Нічого не знайдено",
-};
+import SearchInput from "../components/SearchInput.jsx";
+import StateMessage from "../components/StateMessage.jsx";
+import { useSearchList } from "../hooks/useSearchList.js";
 
 export default function Collections() {
-  const [query, setQuery] = useState("");
-  const [collections, setCollections] = useState([]);
-  const [status, setStatus] = useState("loading");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { query, setQuery, term, status, data, error, stale } = useSearchList(collectionsApi.list, {
+    initialQuery: searchParams.get("search") ?? "",
+  });
 
- useEffect(() => {
-  const delay = query ? SEARCH_DELAY : 0;
-  const timer = setTimeout(async () => {
-    try {
-      const search = encodeURIComponent(query.trim());
-      const data = await fetchJson(`/collections/?search=${search}`);
-      setCollections(data);
-      setStatus(data.length ? "ready" : "empty");
-    } catch {
-      setStatus("error");
-    }
-  }, delay);
-
-  return () => clearTimeout(timer);
-}, [query]);
+  const handleChange = (value) => {
+    setQuery(value);
+    setSearchParams(value.trim() ? { search: value.trim() } : {}, { replace: true });
+  };
 
   return (
     <section className="page">
-      <div className="page-head">
-        <h1 className="page-title">Колекції</h1>
-        <input
-          className="page-search"
-          type="search"
-          placeholder="Знайти колекцію"
-          aria-label="Пошук колекції"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+      <title>Collections · RankifyGames</title>
+      <header className="page-head">
+        <h1 className="page-title">Collections</h1>
+        <SearchInput value={query} onChange={handleChange} placeholder="Find a collection" />
+      </header>
+
+      {!stale && (
+        <StateMessage
+          status={status}
+          error={error}
+          messages={{
+            error: "Failed to load collections",
+            empty: term ? "Nothing found" : "No collections yet",
+          }}
         />
-      </div>
-      {status === "ready" ? (
-        <ul className="collection-grid">
-          {collections.map((collection) => (
-            <CollectionCard key={collection.id} collection={collection} />
-          ))}
-        </ul>
-      ) : (
-        <p className="card-state">{messages[status]}</p>
+      )}
+      {status === "empty" && !term && (
+        <Link className="btn btn-gold" to="/collections/new">
+          Create the first collection
+        </Link>
+      )}
+      {(status === "ready" || stale) && (
+        <div className={`results ${stale ? "is-stale" : ""}`}>
+          <CardGrid items={data} render={(c) => <CollectionCard collection={c} />} />
+        </div>
       )}
     </section>
   );

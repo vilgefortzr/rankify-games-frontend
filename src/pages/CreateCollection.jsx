@@ -1,61 +1,25 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { postJson } from "../api.js";
-import { GENRES } from "../utils.js";
+import { collectionsApi } from "../api/endpoints.js";
+import BackLink from "../components/BackLink.jsx";
+import CollectionForm from "../components/CollectionForm.jsx";
 
 export default function CreateCollection() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ title: "", genre: "other", description: "" });
-  const [errors, setErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setErrors({});
-    try {
-      const created = await postJson("/collections/", form);
-      navigate(`/collections/${created.id}`);
-    } catch (error) {
-      setErrors(error.details ?? { form: [error.message] });
-      setSubmitting(false);
-    }
+  const handleSubmit = async (values) => {
+    const created = await collectionsApi.create(values);
+    navigate(`/collections/${created.id}`);
   };
 
   return (
-    <section className="page form-page">
-      <h1 className="page-title">Нова колекція</h1>
-      <form className="form" onSubmit={handleSubmit}>
-        <label className="field">
-          Назва
-          <input name="title" value={form.title} onChange={handleChange} maxLength={100} required />
-          {errors.title && <span className="field-error">{errors.title[0]}</span>}
-        </label>
-
-        <label className="field">
-          Жанр
-          <select name="genre" value={form.genre} onChange={handleChange}>
-            {GENRES.map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
-          {errors.genre && <span className="field-error">{errors.genre[0]}</span>}
-        </label>
-
-        <label className="field">
-          Опис
-          <textarea name="description" value={form.description} onChange={handleChange} rows={4} />
-          {errors.description && <span className="field-error">{errors.description[0]}</span>}
-        </label>
-
-        {errors.form && <p className="field-error">{errors.form[0]}</p>}
-
-        <button className="btn" type="submit" disabled={submitting}>
-          {submitting ? "Створення..." : "Створити колекцію"}
-        </button>
-      </form>
+    <section className="page page-narrow">
+      <title>New collection · RankifyGames</title>
+      <BackLink to="/collections">All collections</BackLink>
+      <div className="sheet">
+        <h1 className="sheet-title">New collection</h1>
+        <p className="sheet-subtitle">You can add games from Steam right after creating it.</p>
+        <CollectionForm submitLabel="Create collection" pendingLabel="Creating…" onSubmit={handleSubmit} />
+      </div>
     </section>
   );
 }

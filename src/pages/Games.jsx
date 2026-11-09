@@ -1,57 +1,37 @@
-import { useEffect, useState } from "react";
-import { fetchJson } from "../api.js";
+import { gamesApi } from "../api/endpoints.js";
+import CardGrid from "../components/CardGrid.jsx";
 import GameCard from "../components/GameCard.jsx";
-
-const SEARCH_DELAY = 400;
-
-const messages = {
-  loading: "Завантаження...",
-  error: "Не вдалося завантажити ігри",
-  empty: "Нічого не знайдено",
-};
+import SearchInput from "../components/SearchInput.jsx";
+import StateMessage from "../components/StateMessage.jsx";
+import { useSearchList } from "../hooks/useSearchList.js";
 
 export default function Games() {
-  const [query, setQuery] = useState("");
-  const [games, setGames] = useState([]);
-  const [status, setStatus] = useState("loading");
-
-  useEffect(() => {
-    const delay = query ? SEARCH_DELAY : 0;
-    const timer = setTimeout(async () => {
-      try {
-        const search = encodeURIComponent(query.trim());
-        const data = await fetchJson(`/games/?search=${search}`);
-        setGames(data);
-        setStatus(data.length ? "ready" : "empty");
-      } catch {
-        setStatus("error");
-      }
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [query]);
+  const { query, setQuery, term, status, data, error, stale } = useSearchList(gamesApi.list);
 
   return (
     <section className="page">
-      <div className="page-head">
-        <h1 className="page-title">Ігри</h1>
-        <input
-          className="page-search"
-          type="search"
-          placeholder="Знайти гру"
-          aria-label="Пошук гри"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+      <title>Games · RankifyGames</title>
+      <header className="page-head">
+        <div>
+          <h1 className="page-title">Games</h1>
+        </div>
+        <SearchInput value={query} onChange={setQuery} placeholder="Find a game" />
+      </header>
+
+      {!stale && (
+        <StateMessage
+          status={status}
+          error={error}
+          messages={{
+            error: "Failed to load games",
+            empty: term ? "Nothing found" : "No games yet. Add some to a collection",
+          }}
         />
-      </div>
-      {status === "ready" ? (
-        <ul className="collection-grid">
-          {games.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
-        </ul>
-      ) : (
-        <p className="card-state">{messages[status]}</p>
+      )}
+      {(status === "ready" || stale) && (
+        <div className={`results ${stale ? "is-stale" : ""}`}>
+          <CardGrid items={data} render={(g) => <GameCard game={g} />} />
+        </div>
       )}
     </section>
   );
