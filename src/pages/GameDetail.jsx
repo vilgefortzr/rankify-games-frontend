@@ -38,7 +38,6 @@ export default function GameDetail() {
   if (status !== "ready") {
     return (
       <section className="page">
-        <title>Game · RankifyGames</title>
         <BackLink to="/games">All games</BackLink>
         <StateMessage
           status={status}

@@ -13,7 +13,6 @@ export default function CreateCollection() {
 
   return (
     <section className="page page-narrow">
-      <title>New collection · RankifyGames</title>
       <BackLink to="/collections">All collections</BackLink>
       <div className="sheet">
         <h1 className="sheet-title">New collection</h1>

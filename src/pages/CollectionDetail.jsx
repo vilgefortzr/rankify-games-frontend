@@ -23,7 +23,6 @@ export default function CollectionDetail() {
   if (status !== "ready") {
     return (
       <section className="page">
-        <title>Collection · RankifyGames</title>
         <BackLink to="/collections">All collections</BackLink>
         <StateMessage
           status={status}

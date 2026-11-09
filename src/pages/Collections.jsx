@@ -19,7 +19,6 @@ export default function Collections() {
 
   return (
     <section className="page">
-      <title>Collections · RankifyGames</title>
       <header className="page-head">
         <h1 className="page-title">Collections</h1>
         <SearchInput value={query} onChange={handleChange} placeholder="Find a collection" />

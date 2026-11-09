@@ -13,7 +13,6 @@ export default function Home() {
 
   return (
     <section className="hero">
-      <title>RankifyGames</title>
       <div className="hero-text">
         <h1 className="hero-title">Which game in the series is the best?</h1>
         <p className="lead">

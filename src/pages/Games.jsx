@@ -10,7 +10,6 @@ export default function Games() {
 
   return (
     <section className="page">
-      <title>Games · RankifyGames</title>
       <header className="page-head">
         <div>
           <h1 className="page-title">Games</h1>
