@@ -9,11 +9,13 @@ import RankedGameList from "../components/RankedGameList.jsx";
 import StateMessage from "../components/StateMessage.jsx";
 import SteamGameSearch from "../components/SteamGameSearch.jsx";
 import { useAsync } from "../hooks/useAsync.js";
+import { useAuth } from "../hooks/useAuth.js";
 import { formatDate, gamesCount, votesCount } from "../lib/format.js";
 
 export default function CollectionDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [editing, setEditing] = useState(false);
   const [actionError, setActionError] = useState("");
 
@@ -33,7 +35,8 @@ export default function CollectionDetail() {
     );
   }
 
-  const { title, genre, description, created_at, games } = collection;
+  const { title, genre, description, created_at, games, author } = collection;
+  const canEdit = Boolean(user && (user.is_staff || user.id === author?.id));
   const totalVotes = games.reduce((sum, item) => sum + item.votes_count, 0);
 
   const handleSave = async (values) => {
@@ -87,19 +90,22 @@ export default function CollectionDetail() {
             <GenreTag genre={genre} className="genre-tag-on-band" />
             <span className="num">{gamesCount(games.length)}</span>
             <span className="num">{votesCount(totalVotes)}</span>
+            {author && <span>by {author.username}</span>}
             <span className="collection-band-date">Created {formatDate(created_at)}</span>
           </div>
           <div className="collection-head-body">
             <h1 className="page-title">{title}</h1>
             <p className="lead">{description || "No description"}</p>
-            <div className="detail-actions">
-              <button className="btn btn-ghost" type="button" onClick={() => setEditing(true)}>
-                Edit
-              </button>
-              <ConfirmButton confirmLabel="Confirm delete" onConfirm={handleDelete}>
-                Delete collection
-              </ConfirmButton>
-            </div>
+            {canEdit && (
+              <div className="detail-actions">
+                <button className="btn btn-ghost" type="button" onClick={() => setEditing(true)}>
+                  Edit
+                </button>
+                <ConfirmButton confirmLabel="Confirm delete" onConfirm={handleDelete}>
+                  Delete collection
+                </ConfirmButton>
+              </div>
+            )}
           </div>
         </header>
       )}
@@ -112,29 +118,36 @@ export default function CollectionDetail() {
           <RankedGameList
             collection={collection}
             onChanged={reload}
-            renderActions={({ game }) => (
-              <ConfirmButton
-               
-                confirmLabel="Remove"
-                pendingLabel="Removing…"
-                onConfirm={() => handleRemoveGame(game.steam_id)}
-              >
-                Remove
-              </ConfirmButton>
-            )}
+            renderActions={
+              canEdit
+                ? ({ game }) => (
+                    <ConfirmButton
+                      confirmLabel="Remove"
+                      pendingLabel="Removing…"
+                      onConfirm={() => handleRemoveGame(game.steam_id)}
+                    >
+                      Remove
+                    </ConfirmButton>
+                  )
+                : undefined
+            }
           />
         ) : (
           <div className="pocket-empty">
-            <p className="state-text">This collection has no games yet. Find some on Steam below.</p>
+            <p className="state-text">
+              {canEdit ? "This collection has no games yet. Find some on Steam below." : "This collection has no games yet."}
+            </p>
           </div>
         )}
       </section>
 
-      <SteamGameSearch
-        collectionId={id}
-        addedSteamIds={games.map(({ game }) => game.steam_id)}
-        onAdded={reload}
-      />
+      {canEdit && (
+        <SteamGameSearch
+          collectionId={id}
+          addedSteamIds={games.map(({ game }) => game.steam_id)}
+          onAdded={reload}
+        />
+      )}
     </section>
   );
 }

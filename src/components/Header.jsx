@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth.js";
 
 export default function Header() {
+  const { user, ready, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -31,9 +33,34 @@ export default function Header() {
               <NavLink to="/games" onClick={close}>Games</NavLink>
             </li>
           </ul>
-          <Link className="btn btn-gold" to="/collections/new" onClick={close}>
-            Create collection
-          </Link>
+          {ready && user && (
+            <>
+              <span className="nav-user">{user.username}</span>
+              <button
+                className="btn btn-ghost"
+                type="button"
+                onClick={() => {
+                  close();
+                  logout();
+                }}
+              >
+                Log out
+              </button>
+              <Link className="btn btn-gold" to="/collections/new" onClick={close}>
+                Create collection
+              </Link>
+            </>
+          )}
+          {ready && !user && (
+            <>
+              <Link className="btn btn-ghost" to="/login" onClick={close}>
+                Log in
+              </Link>
+              <Link className="btn btn-gold" to="/register" onClick={close}>
+                Register
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </header>
