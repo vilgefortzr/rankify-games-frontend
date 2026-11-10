@@ -199,6 +199,11 @@ button {
   color: var(--gold);
 }
 
+.nav-user {
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
 .site-menu {
   display: contents;
 }
@@ -1489,8 +1494,13 @@ a.tcard-name:hover {
     color: var(--gold);
   }
 
-  .site-nav.is-open .btn-gold {
+  .site-nav.is-open .btn {
     width: 100%;
+  }
+
+  .site-nav.is-open .nav-user {
+    padding-top: var(--space-2);
+    border-top: 2px solid var(--binder-line);
   }
 
   .form-row {
