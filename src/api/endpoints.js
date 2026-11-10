@@ -22,3 +22,9 @@ export const gamesApi = {
 export const steamApi = {
   search: (search, signal) => http.get(`/steam/games/${query(search)}`, signal),
 };
+
+export const authApi = {
+  register: (data) => http.post("/auth/register/", data, { auth: false }),
+  login: (credentials) => http.post("/auth/login/", credentials, { auth: false }),
+  me: (signal) => http.get("/auth/me/", signal),
+};
