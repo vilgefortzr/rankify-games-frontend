@@ -1152,6 +1152,22 @@ a.tcard-name:hover {
   font-size: var(--text-sm);
 }
 
+.field-hint {
+  color: var(--stock-muted);
+  font-weight: 400;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.sheet-subtitle a {
+  color: var(--stock-ink);
+  font-weight: 700;
+}
+
 .field input,
 .field select,
 .field textarea {
@@ -1475,6 +1491,10 @@ a.tcard-name:hover {
 
   .site-nav.is-open .btn-gold {
     width: 100%;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 
   .collection-band-date {

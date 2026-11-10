@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout.jsx";
+import RequireAuth from "./components/RequireAuth.jsx";
 import Home from "./pages/Home.jsx";
 import Collections from "./pages/Collections.jsx";
 import CollectionDetail from "./pages/CollectionDetail.jsx";
@@ -7,6 +8,8 @@ import CreateCollection from "./pages/CreateCollection.jsx";
 import Games from "./pages/Games.jsx";
 import GameDetail from "./pages/GameDetail.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
 
 export default function App() {
   return (
@@ -14,10 +17,19 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="collections" element={<Collections />} />
-        <Route path="collections/new" element={<CreateCollection />} />
+        <Route
+          path="collections/new"
+          element={
+            <RequireAuth>
+              <CreateCollection />
+            </RequireAuth>
+          }
+        />
         <Route path="collections/:id" element={<CollectionDetail />} />
         <Route path="games" element={<Games />} />
         <Route path="games/:steamId" element={<GameDetail />} />
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
