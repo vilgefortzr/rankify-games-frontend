@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth.js";
 import { useVote } from "../hooks/useVote.js";
 import { formatNumber } from "../lib/format.js";
 import Cover from "./Cover.jsx";
@@ -6,12 +7,20 @@ import HoloSurface from "./HoloSurface.jsx";
 import VoteButton from "./VoteButton.jsx";
 
 export default function RankedGameList({ collection, limit, onChanged, renderActions, compact = false }) {
-  const { votedId, pendingId, error, toggle } = useVote(collection.id);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const votedId = collection.user_vote;
+  const { pendingId, error, toggle } = useVote(collection.id, votedId);
   const items = limit ? collection.games.slice(0, limit) : collection.games;
   const maxVotes = Math.max(1, ...items.map((item) => item.votes_count));
   const leaderHasVotes = items[0]?.votes_count > 0;
 
   const handleVote = async (collectionGameId) => {
+    if (!user) {
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
     if (pendingId != null) return;
     if (await toggle(collectionGameId)) onChanged?.();
   };
